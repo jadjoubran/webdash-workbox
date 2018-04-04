@@ -3,7 +3,9 @@
   "main": "webdash-workbox.html",
   "dependencies": {
     "polymer": "Polymer/polymer#^2.0.0",
-    "empty-state-webdash": "jadjoubran/empty-state-webdash#^1.0.4"
+    "empty-state-webdash": "jadjoubran/empty-state-webdash#^1.0.4",
+    "paper-button": "PolymerElements/paper-button#^2.1.0",
+    "paper-spinner": "PolymerElements/paper-spinner#^2.1.0"
   },
   "devDependencies": {
     "iron-demo-helpers": "PolymerElements/iron-demo-helpers#^2.0.0",

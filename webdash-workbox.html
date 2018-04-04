@@ -1,5 +1,7 @@
 <link rel="import" href="/bower_components/polymer/polymer-element.html">
 <link rel="import" href="/bower_components/empty-state-webdash/empty-state-webdash.html">
+<link rel="import" href="/bower_components/paper-button/paper-button.html">
+<link rel="import" href="/bower_components/paper-spinner/paper-spinner-lite.html">
 
 <dom-module id="webdash-workbox">
   <template>
@@ -8,24 +10,58 @@
         display: block;
       }
 
-      /*
-      * Some of the available colors
-      * var(--brand), var(--accent), var(--danger), var(--success), var(--alternative)
-      * var(--gray-9), var(--gray-8), var(--gray-7), ... var(--gray-3)
-      *
-      * these colors can be accessed from JavaScript (if needed)
-      * this.accent = getComputedStyle(this).getPropertyValue('--accent');
-      * https://codetogo.io/how-to-get-css-custom-property-in-javascript/
-      */
+      .brand {
+        background-color: var(--brand);
+      }
+
+      .text-center {
+        text-align: center;
+      }
+
+      [aria-hidden] {
+        display: none;
+      }
+
+      .empty-state-cta {
+        position: relative;
+        top: -20px;
+        margin-bottom: 20px;
+        padding-left: 20px;
+        padding-right: 20px;
+      }
+
+      .empty-state-cta paper-spinner-lite {
+        margin-right: 20px;
+      }
+
+      paper-spinner-lite {
+        width: 20px;
+        height: 20px;
+      }
+
+      paper-button[disabled] {
+        color: white;
+        opacity: 0.6;
+      }
     </style>
 
-    webdash-workbox plugin
-
-    <!-- <template is="dom-if" if="{{emptyState}}">
-      <empty-state-webdash title="Empty state title here">
-        Empty state description here
+    <template is="dom-if" if="{{!workboxInstalled}}">
+      <empty-state-webdash title="Workbox is not installed">
+        Workbox needs to be installed in your project. Let's start by installing it.
       </empty-state-webdash>
-    </template> -->
+      <div class="text-center">
+        <paper-button class="brand empty-state-cta" on-click="installWorkbox" disabled$="{{installingWorkbox}}">
+          <paper-spinner-lite active$="{{installingWorkbox}}" hidden$="{{!installingWorkbox}}"></paper-spinner-lite>
+          Install workbox
+        </paper-button>
+      </div>
+    </template>
+
+    <template is="dom-if" if="{{showConfigGenerator}}">
+      <empty-state-webdash title="Setup Workbox configuration">
+        Let's start by generating your workbox config
+      </empty-state-webdash>
+    </template>
 
 
   </template>
@@ -45,7 +81,16 @@
           .then(response => {
             this.configExists = response.configExists;
             this.workboxInstalled = response.workboxInstalled;
+
+            this.showConfigGenerator = this.workboxInstalled && !this.configExists;
           });
+      }
+
+      installWorkbox() {
+        this.installingWorkbox = true;
+        this.backend.post('install')
+          .then(this.init)
+          .finally(this.installingWorkbox = false);
       }
     }
 
