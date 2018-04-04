@@ -18,7 +18,7 @@
         text-align: center;
       }
 
-      [aria-hidden] {
+      [hidden] {
         display: none;
       }
 
@@ -73,6 +73,7 @@
       ready() {
         super.ready();
         this.backend = new Backend(WebdashWorkbox.is);
+        this.installingWorkbox = false;
         this.init();
       }
 
@@ -88,9 +89,12 @@
 
       installWorkbox() {
         this.installingWorkbox = true;
+        console.log(this.installingWorkbox);
         this.backend.post('install')
-          .then(this.init)
-          .finally(this.installingWorkbox = false);
+          .then(this.init.bind(this))
+          .finally(() => {
+            this.installingWorkbox = false;
+          });
       }
     }
 
