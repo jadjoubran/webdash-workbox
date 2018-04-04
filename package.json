@@ -1,0 +1,21 @@
+{
+  "name": "webdash-workbox",
+  "version": "0.0.1",
+  "description": "",
+  "main": "api.js",
+  "directories": {
+    "test": "test"
+  },
+  "files": [
+    "bower_components/",
+    "*.js",
+    "*.html",
+    "*.md",
+    "*.json"
+  ],
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "MIT"
+}
