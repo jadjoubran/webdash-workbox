@@ -1,16 +1,30 @@
+const fs = require("fs");
+
 module.exports = {
   routes: {
     get: {
-      'your-endpoint-name-here': (req, res) => {
-        //get app root pointing to the end-user's app
+      init: (req, res) => {
         const appRoot = req.app.locals.appRoot;
-        //get webdash.json config
         const config = req.app.locals.config;
 
-        const result = 42;
+        //check if workbox configuration exists
+        const configExists = false;
+        if (fs.existsSync(`${appRoot}/workbox-config.js`)) {
+          configExists = true;
+        }
 
-        return res.send({ result });
+        //check if workbox is installed
+        const workboxInstalled = false;
+        const package = require(`${appRoot}/package.json`);
+        if (
+          (package.dependencies && package.dependencies["workbox-cli"]) ||
+          (package.devDependencies && package.devDependencies["workbox-cli"])
+        ) {
+          workboxInstalled = true;
+        }
+
+        return res.send({ configExists, workboxInstalled });
       }
     }
   }
-}
+};

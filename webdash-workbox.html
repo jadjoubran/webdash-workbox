@@ -19,13 +19,13 @@
       */
     </style>
 
-    webdash-workbox code here
+    webdash-workbox plugin
 
-    <template is="dom-if" if="{{emptyState}}">
+    <!-- <template is="dom-if" if="{{emptyState}}">
       <empty-state-webdash title="Empty state title here">
         Empty state description here
       </empty-state-webdash>
-    </template>
+    </template> -->
 
 
   </template>
@@ -37,12 +37,15 @@
       ready() {
         super.ready();
         this.backend = new Backend(WebdashWorkbox.is);
-        this.run();
+        this.init();
       }
 
-      run() {
-        //your custom logic here
-        this.emptyState = true;
+      init() {
+        this.backend.get('init')
+          .then(response => {
+            this.configExists = response.configExists;
+            this.workboxInstalled = response.workboxInstalled;
+          });
       }
     }
 
