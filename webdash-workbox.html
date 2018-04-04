@@ -1,6 +1,7 @@
 <link rel="import" href="/bower_components/polymer/polymer-element.html">
 <link rel="import" href="/bower_components/empty-state-webdash/empty-state-webdash.html">
 <link rel="import" href="/bower_components/paper-button/paper-button.html">
+<link rel="import" href="/bower_components/paper-toast/paper-toast.html">
 <link rel="import" href="/bower_components/paper-spinner/paper-spinner-lite.html">
 
 <dom-module id="webdash-workbox">
@@ -43,26 +44,35 @@
         color: white;
         opacity: 0.6;
       }
+
+      paper-dialog {
+        z-index: 10000;
+      }
     </style>
 
-    <template is="dom-if" if="{{!workboxInstalled}}">
-      <empty-state-webdash title="Workbox is not installed">
-        Workbox needs to be installed in your project. Let's start by installing it.
-      </empty-state-webdash>
-      <div class="text-center">
-        <paper-button class="brand empty-state-cta" on-click="installWorkbox" disabled$="{{installingWorkbox}}">
-          <paper-spinner-lite active$="{{installingWorkbox}}" hidden$="{{!installingWorkbox}}"></paper-spinner-lite>
-          Install workbox
-        </paper-button>
-      </div>
-    </template>
+    <div id="plugin">
 
-    <template is="dom-if" if="{{showConfigGenerator}}">
-      <empty-state-webdash title="Setup Workbox configuration">
-        Let's start by generating your workbox config
-      </empty-state-webdash>
-    </template>
+      <template is="dom-if" if="{{!workboxInstalled}}">
+        <empty-state-webdash title="Workbox is not installed">
+          Workbox needs to be installed in your project. Let's start by installing it.
+        </empty-state-webdash>
+        <div class="text-center">
+          <paper-button class="brand empty-state-cta" on-click="installWorkbox" disabled$="{{installingWorkbox}}">
+            <paper-spinner-lite active$="{{installingWorkbox}}" hidden$="{{!installingWorkbox}}"></paper-spinner-lite>
+            Install workbox
+          </paper-button>
+        </div>
+      </template>
 
+      <template is="dom-if" if="{{showConfigGenerator}}">
+        <empty-state-webdash title="Setup Workbox configuration">
+          Let's start by generating your workbox config
+        </empty-state-webdash>
+      </template>
+
+    </div>
+
+    <paper-toast id="toast" class="fit-bottom"></paper-toast>
 
   </template>
 
@@ -89,9 +99,16 @@
 
       installWorkbox() {
         this.installingWorkbox = true;
-        console.log(this.installingWorkbox);
         this.backend.post('install')
-          .then(this.init.bind(this))
+          .then((response) => {
+            if (response && response.result) {
+              const toast = this.$.toast;
+              toast.text = "Workbox successfully installed";
+              toast.fitInto = this.$.plugin;
+              toast.open();
+              this.init();
+            }
+          })
           .finally(() => {
             this.installingWorkbox = false;
           });

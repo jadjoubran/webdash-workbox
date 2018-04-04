@@ -22,6 +22,9 @@ module.exports = {
         //check if workbox is installed
         let workboxInstalled = false;
         const package = require(`${appRoot}/package.json`);
+        //delete entry in require.cache in order to get the updated package.json every time init is called
+        delete require.cache[require.resolve(`${appRoot}/package.json`)];
+
         if (
           (package.dependencies && package.dependencies["workbox-cli"]) ||
           (package.devDependencies && package.devDependencies["workbox-cli"])
