@@ -18,7 +18,5 @@
   },
   "author": "",
   "license": "MIT",
-  "dependencies": {
-    "workbox-cli": "^3.0.1"
-  }
+  "dependencies": {}
 }
