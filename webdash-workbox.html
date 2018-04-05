@@ -2,7 +2,10 @@
 <link rel="import" href="/bower_components/empty-state-webdash/empty-state-webdash.html">
 <link rel="import" href="/bower_components/paper-button/paper-button.html">
 <link rel="import" href="/bower_components/paper-toast/paper-toast.html">
+<link rel="import" href="/bower_components/paper-input/paper-input.html">
 <link rel="import" href="/bower_components/paper-spinner/paper-spinner-lite.html">
+<link rel="import" href="/bower_components/paper-checkbox/paper-checkbox.html">
+
 
 <dom-module id="webdash-workbox">
   <template>
@@ -48,6 +51,60 @@
       paper-dialog {
         z-index: 10000;
       }
+
+      paper-input {
+        --paper-input-container-focus-color: white;
+        --paper-input-container-color: #ececec;
+        --paper-input-container-shared-input-style_-_color: white;
+      }
+
+      #questionnaire {
+        min-height: 300px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      #questionnaire .container {
+        width: 100%;
+      }
+
+      #questionnaire paper-input {
+        width: 50%;
+      }
+
+      #questionnaire p {
+        text-align: center;
+        max-width: 50%;
+        margin-left: auto;
+        margin-right: auto;
+      }
+
+      #questionnaire paper-button {
+        margin-left: 20px;
+      }
+
+      #questionnaire p {
+        color: var(--gray-3);
+      }
+
+      #questionnaire .question {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      paper-checkbox {
+        --paper-checkbox-checked-color: var(--accent);
+        --paper-checkbox-label-color: white;
+        margin-top: 10px;
+        margin-bottom: 10px;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(125px, 1fr));
+      }
     </style>
 
     <div id="plugin">
@@ -68,6 +125,65 @@
         <empty-state-webdash title="Setup Workbox configuration">
           Let's start by generating your workbox config
         </empty-state-webdash>
+        <div class="text-center">
+          <paper-button class="brand empty-state-cta" on-click="setupWorkbox" disabled$="{{settingupWorkbox}}">
+            Setup workbox
+          </paper-button>
+        </div>
+      </template>
+
+
+      <template is="dom-if" if="{{questionnaire}}">
+        <div id="questionnaire">
+          <template is="dom-if" if="{{step1}}">
+            <div class="container">
+              <p>Enter the path of the root of your public web app</p>
+              <div class="question">
+                <paper-input label="Root of your app" value="{{globDirectory}}"></paper-input>
+                <paper-button class="brand" on-click="doneStep1">Next ▶</paper-button>
+              </div>
+            </div>
+          </template>
+          <template is="dom-if" if="{{step2}}">
+            <div class="container">
+              <p>Select the file extensions that you'd like to precache</p>
+              <div class="question">
+                <div class="grid">
+                  <paper-checkbox id="choice-html" checked>HTML</paper-checkbox>
+                  <paper-checkbox id="choice-js" checked>JS</paper-checkbox>
+                  <paper-checkbox id="choice-css" checked>CSS</paper-checkbox>
+                  <paper-checkbox id="choice-png" checked>PNG</paper-checkbox>
+                  <paper-checkbox id="choice-jpg" checked>JPG</paper-checkbox>
+                  <paper-checkbox id="choice-svg" checked>SVG</paper-checkbox>
+                </div>
+
+                <paper-button class="brand" on-click="doneStep2">Next ▶</paper-button>
+              </div>
+            </div>
+          </template>
+          <template is="dom-if" if="{{step3}}">
+            <div class="container">
+              <p>Ignore the following directories in your public root</p>
+              <div class="question">
+                <div class="grid">
+                  <template is="dom-repeat" items="{{suggestedIgnores}}">
+                    <paper-checkbox checked>{{item}}</paper-checkbox>
+                  </template>
+                </div>
+                <paper-button class="brand" on-click="doneStep3">Next ▶</paper-button>
+              </div>
+            </div>
+          </template>
+          <template is="dom-if" if="{{step4}}">
+            <div class="container">
+              <p>We'll save your service worker file here: </p>
+              <div class="question">
+                <paper-input label="Service worker" value="{{swDest}}"></paper-input>
+                <paper-button class="brand" on-click="doneStep3">Generate ▶</paper-button>
+              </div>
+            </div>
+          </template>
+        </div>
       </template>
 
     </div>
@@ -112,6 +228,42 @@
           .finally(() => {
             this.installingWorkbox = false;
           });
+      }
+
+      setupWorkbox() {
+        this.showConfigGenerator = false;
+        this.questionnaire = true;
+        this.step1 = true;
+        this.globDirectory = window.webdashConfig.dist || `./dist/`;
+      }
+      doneStep1() {
+        this.step1 = false;
+        this.step2 = true;
+        if (!this.globDirectory.endsWith('/')) {
+          this.globDirectory = this.globDirectory + '/';
+        }
+        this.swDest = `${this.globDirectory}service-worker.js`;
+        this.checkForGlobIgnores();
+      }
+      checkForGlobIgnores() {
+        this.backend.get(`check-ignores?dir=${this.globDirectory}`)
+          .then(response => {
+            if (response.result.length) {
+              this.suggestedIgnores = response.result;
+            }
+          });
+      }
+      doneStep2() {
+        this.step2 = false;
+        if (this.suggestedIgnores) {
+          this.step3 = true;
+        } else {
+          this.step4 = true;
+        }
+      }
+      doneStep3() {
+        this.step3 = false;
+        this.step4 = true;
       }
     }
 
