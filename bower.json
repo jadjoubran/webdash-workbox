@@ -8,7 +8,8 @@
     "paper-spinner": "PolymerElements/paper-spinner#^2.1.0",
     "paper-toast": "PolymerElements/paper-toast#^2.1.0",
     "paper-input": "PolymerElements/paper-input#^2.2.1",
-    "paper-checkbox": "PolymerElements/paper-checkbox#^2.0.3"
+    "paper-checkbox": "PolymerElements/paper-checkbox#^2.0.3",
+    "paper-tooltip": "PolymerElements/paper-tooltip#^2.1.1"
   },
   "devDependencies": {
     "iron-demo-helpers": "PolymerElements/iron-demo-helpers#^2.0.0",

@@ -5,6 +5,7 @@
 <link rel="import" href="/bower_components/paper-input/paper-input.html">
 <link rel="import" href="/bower_components/paper-spinner/paper-spinner-lite.html">
 <link rel="import" href="/bower_components/paper-checkbox/paper-checkbox.html">
+<link rel="import" href="/bower_components/paper-tooltip/paper-tooltip.html">
 
 
 <dom-module id="webdash-workbox">
@@ -24,6 +25,10 @@
 
       [hidden] {
         display: none;
+      }
+
+      a {
+        color: inherit;
       }
 
       .empty-state-cta {
@@ -79,9 +84,21 @@
 
       #questionnaire p {
         text-align: center;
-        max-width: 50%;
+        max-width: 550px;
         margin-left: auto;
         margin-right: auto;
+        margin-top: 0;
+        margin-bottom: 0;
+      }
+
+      .info {
+        text-decoration: underline;
+      }
+
+      #questionnaire .hint {
+        margin-top: 15px;
+        margin-bottom: 35px;
+        color: var(--gray-4);
       }
 
       #questionnaire paper-button {
@@ -115,7 +132,10 @@
       <div>
         <template is="dom-if" if="{{!workboxInstalled}}">
           <empty-state-webdash title="Workbox is not installed">
-            Workbox needs to be installed in your project. Let's start by installing it.
+            Workbox is a set of libraries that make it easy to cache assets and take full advantage of features used to build progressive
+            web apps.
+            <br>
+            <br> Workbox needs to be installed in your project. Let's start by installing it.
           </empty-state-webdash>
           <div class="text-center">
             <paper-button class="brand empty-state-cta" on-click="installWorkbox" disabled$="{{installingWorkbox}}">
@@ -127,11 +147,12 @@
 
         <template is="dom-if" if="{{showConfigGenerator}}">
           <empty-state-webdash title="Setup Workbox configuration">
-            Let's start by generating your workbox config
+            We'll ask you a couple of questions that will generate your
+            <strong>workbox-config.js</strong> file.
           </empty-state-webdash>
           <div class="text-center">
             <paper-button class="brand empty-state-cta" on-click="setupWorkbox" disabled$="{{settingupWorkbox}}">
-              Setup workbox
+              Start wizard
             </paper-button>
           </div>
         </template>
@@ -141,7 +162,8 @@
           <div id="questionnaire">
             <template is="dom-if" if="{{step1}}">
               <div class="container">
-                <p>Enter the path of the root of your public web app</p>
+                <p>What is the root of your web app?</p>
+                <p class="hint">this is the directory that you deploy</p>
                 <div class="question">
                   <paper-input label="Root of your app" value="{{globDirectory}}"></paper-input>
                   <paper-button class="brand" on-click="doneStep1">Next ▶</paper-button>
@@ -150,7 +172,12 @@
             </template>
             <template is="dom-if" if="{{step2}}">
               <div class="container">
-                <p>Select the file extensions that you'd like to precache</p>
+                <p>Which file types would you like to
+                  <span class="info">precache</span>
+                  <paper-tooltip animation-delay="0">Precaching: adding assets (images, scripts, ...) to the cache of the service worker.
+                    <br>
+                    <br>These assets can then be served without using the network.</paper-tooltip>?</p>
+                <p class="hint">Choose the file types that are required for your first load experience</p>
                 <div class="question">
                   <div class="grid" id="extensions">
                     <paper-checkbox name="html" checked>HTML</paper-checkbox>
@@ -167,7 +194,8 @@
             </template>
             <template is="dom-if" if="{{step3}}">
               <div class="container">
-                <p>Ignore the following directories in your public root</p>
+                <p>Would you like to ignore the following directories from the precached assets?</p>
+                <p class="hint">These directories often contain additional assets than you don't need.</p>
                 <div class="question">
                   <div class="grid" id="ignoreOptions">
                     <template is="dom-repeat" items="{{suggestedIgnores}}">
@@ -180,7 +208,10 @@
             </template>
             <template is="dom-if" if="{{step4}}">
               <div class="container">
-                <p>We'll save your service worker file here: </p>
+                <p>Where would you like to save your service worker file?</p>
+                <p class="hint">This path should match your service worker
+                  <a href="https://codetogo.io/how-to-register-a-service-worker-in-javascript/" target="_blank" rel="noopener">registration code.</a>
+                </p>
                 <div class="question">
                   <paper-input label="Service worker" value="{{swDest}}"></paper-input>
                   <paper-button class="brand" on-click="generate">Generate ▶</paper-button>
