@@ -79,6 +79,26 @@ module.exports = {
           }
           return res.send({ result: true });
         });
+      },
+      config: (req, res) => {
+        const body = req.body;
+
+        const config = {
+          globDirectory: body.globDirectory,
+          globPatterns: [`**/*.{${body.patterns.join(",")}}`],
+          globIgnores: body.ignores,
+          swDest: body.swDest
+        };
+
+        let content = "module.exports = ";
+        content += JSON.stringify(config, null, 4);
+        content += ";";
+
+        fs.writeFile("workbox-config.js", content, err => {
+          if (err) return console.error(err);
+
+          return res.send({ result: true });
+        });
       }
     }
   }

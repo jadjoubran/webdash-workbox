@@ -58,11 +58,15 @@
         --paper-input-container-shared-input-style_-_color: white;
       }
 
-      #questionnaire {
+      #plugin {
         min-height: 300px;
         display: flex;
         align-items: center;
         justify-content: center;
+      }
+
+      #plugin>div {
+        flex-basis: 100%;
       }
 
       #questionnaire .container {
@@ -108,84 +112,89 @@
     </style>
 
     <div id="plugin">
+      <div>
+        <template is="dom-if" if="{{!workboxInstalled}}">
+          <empty-state-webdash title="Workbox is not installed">
+            Workbox needs to be installed in your project. Let's start by installing it.
+          </empty-state-webdash>
+          <div class="text-center">
+            <paper-button class="brand empty-state-cta" on-click="installWorkbox" disabled$="{{installingWorkbox}}">
+              <paper-spinner-lite active$="{{installingWorkbox}}" hidden$="{{!installingWorkbox}}"></paper-spinner-lite>
+              Install workbox
+            </paper-button>
+          </div>
+        </template>
 
-      <template is="dom-if" if="{{!workboxInstalled}}">
-        <empty-state-webdash title="Workbox is not installed">
-          Workbox needs to be installed in your project. Let's start by installing it.
-        </empty-state-webdash>
-        <div class="text-center">
-          <paper-button class="brand empty-state-cta" on-click="installWorkbox" disabled$="{{installingWorkbox}}">
-            <paper-spinner-lite active$="{{installingWorkbox}}" hidden$="{{!installingWorkbox}}"></paper-spinner-lite>
-            Install workbox
-          </paper-button>
-        </div>
-      </template>
-
-      <template is="dom-if" if="{{showConfigGenerator}}">
-        <empty-state-webdash title="Setup Workbox configuration">
-          Let's start by generating your workbox config
-        </empty-state-webdash>
-        <div class="text-center">
-          <paper-button class="brand empty-state-cta" on-click="setupWorkbox" disabled$="{{settingupWorkbox}}">
-            Setup workbox
-          </paper-button>
-        </div>
-      </template>
+        <template is="dom-if" if="{{showConfigGenerator}}">
+          <empty-state-webdash title="Setup Workbox configuration">
+            Let's start by generating your workbox config
+          </empty-state-webdash>
+          <div class="text-center">
+            <paper-button class="brand empty-state-cta" on-click="setupWorkbox" disabled$="{{settingupWorkbox}}">
+              Setup workbox
+            </paper-button>
+          </div>
+        </template>
 
 
-      <template is="dom-if" if="{{questionnaire}}">
-        <div id="questionnaire">
-          <template is="dom-if" if="{{step1}}">
-            <div class="container">
-              <p>Enter the path of the root of your public web app</p>
-              <div class="question">
-                <paper-input label="Root of your app" value="{{globDirectory}}"></paper-input>
-                <paper-button class="brand" on-click="doneStep1">Next ▶</paper-button>
-              </div>
-            </div>
-          </template>
-          <template is="dom-if" if="{{step2}}">
-            <div class="container">
-              <p>Select the file extensions that you'd like to precache</p>
-              <div class="question">
-                <div class="grid">
-                  <paper-checkbox id="choice-html" checked>HTML</paper-checkbox>
-                  <paper-checkbox id="choice-js" checked>JS</paper-checkbox>
-                  <paper-checkbox id="choice-css" checked>CSS</paper-checkbox>
-                  <paper-checkbox id="choice-png" checked>PNG</paper-checkbox>
-                  <paper-checkbox id="choice-jpg" checked>JPG</paper-checkbox>
-                  <paper-checkbox id="choice-svg" checked>SVG</paper-checkbox>
+        <template is="dom-if" if="{{questionnaire}}">
+          <div id="questionnaire">
+            <template is="dom-if" if="{{step1}}">
+              <div class="container">
+                <p>Enter the path of the root of your public web app</p>
+                <div class="question">
+                  <paper-input label="Root of your app" value="{{globDirectory}}"></paper-input>
+                  <paper-button class="brand" on-click="doneStep1">Next ▶</paper-button>
                 </div>
-
-                <paper-button class="brand" on-click="doneStep2">Next ▶</paper-button>
               </div>
-            </div>
-          </template>
-          <template is="dom-if" if="{{step3}}">
-            <div class="container">
-              <p>Ignore the following directories in your public root</p>
-              <div class="question">
-                <div class="grid">
-                  <template is="dom-repeat" items="{{suggestedIgnores}}">
-                    <paper-checkbox checked>{{item}}</paper-checkbox>
-                  </template>
+            </template>
+            <template is="dom-if" if="{{step2}}">
+              <div class="container">
+                <p>Select the file extensions that you'd like to precache</p>
+                <div class="question">
+                  <div class="grid" id="extensions">
+                    <paper-checkbox name="html" checked>HTML</paper-checkbox>
+                    <paper-checkbox name="js" checked>JS</paper-checkbox>
+                    <paper-checkbox name="css" checked>CSS</paper-checkbox>
+                    <paper-checkbox name="png" checked>PNG</paper-checkbox>
+                    <paper-checkbox name="jpg" checked>JPG</paper-checkbox>
+                    <paper-checkbox name="svg" checked>SVG</paper-checkbox>
+                  </div>
+
+                  <paper-button class="brand" on-click="doneStep2">Next ▶</paper-button>
                 </div>
-                <paper-button class="brand" on-click="doneStep3">Next ▶</paper-button>
               </div>
-            </div>
-          </template>
-          <template is="dom-if" if="{{step4}}">
-            <div class="container">
-              <p>We'll save your service worker file here: </p>
-              <div class="question">
-                <paper-input label="Service worker" value="{{swDest}}"></paper-input>
-                <paper-button class="brand" on-click="doneStep3">Generate ▶</paper-button>
+            </template>
+            <template is="dom-if" if="{{step3}}">
+              <div class="container">
+                <p>Ignore the following directories in your public root</p>
+                <div class="question">
+                  <div class="grid" id="ignoreOptions">
+                    <template is="dom-repeat" items="{{suggestedIgnores}}">
+                      <paper-checkbox name="{{item}}" checked>{{item}}</paper-checkbox>
+                    </template>
+                  </div>
+                  <paper-button class="brand" on-click="doneStep3">Next ▶</paper-button>
+                </div>
               </div>
-            </div>
-          </template>
-        </div>
-      </template>
+            </template>
+            <template is="dom-if" if="{{step4}}">
+              <div class="container">
+                <p>We'll save your service worker file here: </p>
+                <div class="question">
+                  <paper-input label="Service worker" value="{{swDest}}"></paper-input>
+                  <paper-button class="brand" on-click="generate">Generate ▶</paper-button>
+                </div>
+              </div>
+            </template>
+          </div>
+        </template>
 
+        <template is="dom-if" if="{{showStats}}">
+          Workbox stats
+        </template>
+
+      </div>
     </div>
 
     <paper-toast id="toast" class="fit-bottom"></paper-toast>
@@ -210,6 +219,7 @@
             this.workboxInstalled = response.workboxInstalled;
 
             this.showConfigGenerator = this.workboxInstalled && !this.configExists;
+            this.showStats = this.workboxInstalled && this.configExists;
           });
       }
 
@@ -264,6 +274,36 @@
       doneStep3() {
         this.step3 = false;
         this.step4 = true;
+      }
+
+      generate() {
+        const globDirectory = this.globDirectory;
+        const swDest = this.swDest;
+        const extensions = this.shadowRoot.querySelector('#extensions');
+        const patterns = [...extensions.children]
+          .filter(item => item.checked)
+          .map(item => item.name);
+        let ignores = [];
+        if (this.suggestedIgnores) {
+          const ignoreOptions = this.shadowRoot.querySelector('#ignoreOptions');
+          ignores = [...ignoreOptions.children]
+            .filter(item => item.checked)
+            .map(item => item.name);
+        }
+
+        this.backend.post('config', {
+          globDirectory,
+          swDest,
+          patterns,
+          ignores,
+        }).then(() => {
+          this.questionnaire = false;
+          const toast = this.$.toast;
+          toast.text = "Workbox configuration successfully generated";
+          toast.fitInto = this.$.plugin;
+          toast.open();
+          this.init();
+        });
       }
     }
 
