@@ -116,6 +116,7 @@
       paper-checkbox {
         --paper-checkbox-checked-color: var(--accent);
         --paper-checkbox-label-color: white;
+        --paper-checkbox-unchecked-color: var(--gray-5);
         margin-top: 10px;
         margin-bottom: 10px;
       }
@@ -161,7 +162,8 @@
           <div class="text-center">
             <paper-button class="brand empty-state-cta" on-click="installWorkbox" disabled$="{{installingWorkbox}}">
               <paper-spinner-lite active$="{{installingWorkbox}}" hidden$="{{!installingWorkbox}}"></paper-spinner-lite>
-              Install workbox
+              <span hidden$="{{installingWorkbox}}">Install workbox</span>
+              <span hidden$="{{!installingWorkbox}}">Installing workbox</span>
             </paper-button>
           </div>
         </template>
