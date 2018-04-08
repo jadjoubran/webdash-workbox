@@ -64,7 +64,7 @@
       }
 
       #plugin {
-        min-height: 300px;
+        min-height: 250px;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -89,6 +89,7 @@
         margin-right: auto;
         margin-top: 0;
         margin-bottom: 0;
+        font-weight: bold;
       }
 
       .info {
@@ -99,14 +100,11 @@
         margin-top: 15px;
         margin-bottom: 35px;
         color: var(--gray-4);
+        font-weight: normal;
       }
 
       #questionnaire paper-button {
         margin-left: 20px;
-      }
-
-      #questionnaire p {
-        color: var(--gray-3);
       }
 
       #questionnaire .question {
@@ -126,16 +124,39 @@
         display: grid;
         grid-template-columns: repeat(2, minmax(125px, 1fr));
       }
+
+      .stats {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        align-items: center;
+        text-align: center;
+        width: 85%;
+        margin-left: auto;
+        margin-right: auto;
+      }
+
+      .title {
+        font-size: 28px;
+        font-weight: bold;
+      }
+
+      .subtitle {
+        color: rgba(255, 255, 255, 0.75);
+        font-weight: 500;
+      }
+
+      .code {
+        font-family: Fira Code, Fira Mono, Consolas, Monaco, Andale Mono, Ubuntu Mono, monospace;
+      }
     </style>
 
     <div id="plugin">
       <div>
         <template is="dom-if" if="{{!workboxInstalled}}">
           <empty-state-webdash title="Workbox is not installed">
-            Workbox is a set of libraries that make it easy to cache assets and take full advantage of features used to build progressive
-            web apps.
+            Workbox is a set of libraries that make it easy to cache assets and take full advantage of features used to build PWAs.
             <br>
-            <br> Workbox needs to be installed in your project. Let's start by installing it.
+            <br> Workbox needs to be installed in your project.
           </empty-state-webdash>
           <div class="text-center">
             <paper-button class="brand empty-state-cta" on-click="installWorkbox" disabled$="{{installingWorkbox}}">
@@ -163,10 +184,10 @@
             <template is="dom-if" if="{{step1}}">
               <div class="container">
                 <p>What is the root of your web app?</p>
-                <p class="hint">this is the directory that you deploy</p>
+                <p class="hint">This is the directory that you deploy.</p>
                 <div class="question">
                   <paper-input label="Root of your app" value="{{globDirectory}}"></paper-input>
-                  <paper-button class="brand" on-click="doneStep1">Next ▶</paper-button>
+                  <paper-button class="brand" on-click="doneStep1">Next</paper-button>
                 </div>
               </div>
             </template>
@@ -175,9 +196,8 @@
                 <p>Which file types would you like to
                   <span class="info">precache</span>
                   <paper-tooltip animation-delay="0">Precaching: adding assets (images, scripts, ...) to the cache of the service worker.
-                    <br>
                     <br>These assets can then be served without using the network.</paper-tooltip>?</p>
-                <p class="hint">Choose the file types that are required for your first load experience</p>
+                <p class="hint">Choose the file types that are required for your first load experience.</p>
                 <div class="question">
                   <div class="grid" id="extensions">
                     <paper-checkbox name="html" checked>HTML</paper-checkbox>
@@ -188,7 +208,7 @@
                     <paper-checkbox name="svg" checked>SVG</paper-checkbox>
                   </div>
 
-                  <paper-button class="brand" on-click="doneStep2">Next ▶</paper-button>
+                  <paper-button class="brand" on-click="doneStep2">Next</paper-button>
                 </div>
               </div>
             </template>
@@ -202,7 +222,7 @@
                       <paper-checkbox name="{{item}}" checked>{{item}}</paper-checkbox>
                     </template>
                   </div>
-                  <paper-button class="brand" on-click="doneStep3">Next ▶</paper-button>
+                  <paper-button class="brand" on-click="doneStep3">Next</paper-button>
                 </div>
               </div>
             </template>
@@ -214,7 +234,7 @@
                 </p>
                 <div class="question">
                   <paper-input label="Service worker" value="{{swDest}}"></paper-input>
-                  <paper-button class="brand" on-click="generate">Generate ▶</paper-button>
+                  <paper-button class="brand" on-click="generate">Generate</paper-button>
                 </div>
               </div>
             </template>
@@ -222,10 +242,28 @@
         </template>
 
         <template is="dom-if" if="{{showStats}}">
-          Workbox stats coming soon
-        </template>
-
+          <template is="dom-if" if="{{!serviceWorker}}">
+            <empty-state-webdash title="Service worker not yet generated">
+              Run
+              <strong class="code">npx workbox generateSW</strong> to generate it.
+            </empty-state-webdash>
       </div>
+      </template>
+      <template is="dom-if" if="{{serviceWorker}}">
+        <div class="stats">
+          <div>
+            <div class="title">{{cachedFiles}}</div>
+            <div class="subtitle">Cached files</div>
+          </div>
+          <div>
+            <div class="title">{{workboxVersion}}</div>
+            <div class="subtitle">Workbox CDN</div>
+          </div>
+        </div>
+      </template>
+      </template>
+
+    </div>
     </div>
 
     <paper-toast id="toast" class="fit-bottom"></paper-toast>
@@ -251,6 +289,10 @@
 
             this.showConfigGenerator = this.workboxInstalled && !this.configExists;
             this.showStats = this.workboxInstalled && this.configExists;
+
+            if (this.showStats) {
+              this.getStats();
+            }
           });
       }
 
@@ -335,6 +377,18 @@
           toast.open();
           this.init();
         });
+      }
+
+      getStats() {
+        this.backend.get('stats')
+          .then(response => {
+            if (!response.result) {
+              return false;
+            }
+            this.serviceWorker = response.serviceWorker;
+            this.cachedFiles = response.cachedFiles;
+            this.workboxVersion = response.workboxVersion;
+          });
       }
     }
 

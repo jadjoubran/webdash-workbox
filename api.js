@@ -62,6 +62,39 @@ module.exports = {
           e => typicallyIgnored.indexOf(e) !== -1
         );
         return res.send({ result: intersection });
+      },
+      stats: (req, res) => {
+        const appRoot = req.app.locals.appRoot;
+        const configPath = `${appRoot}/workbox-config.js`;
+        if (!fs.existsSync(configPath)) {
+          return res.send({
+            result: false,
+            message: "Workox configuration does not exist"
+          });
+        }
+        const workboxConfig = require(configPath);
+        const swDest = workboxConfig.swDest;
+        if (!swDest) {
+          return res.send({
+            result: false,
+            message: "swDest missing from workbox-config.js"
+          });
+        }
+
+        if (!fs.existsSync(`${appRoot}/${swDest}`)) {
+          return res.send({ result: true, serviceWorker: false });
+        }
+        const serviceWorker = fs.readFileSync(`${appRoot}/${swDest}`, "utf8");
+        const cachedFiles = serviceWorker.split('"revision"').length - 1;
+        const regexp = /releases\/(.*)\/workbox/;
+        const workboxVersion = serviceWorker.match(regexp)[1];
+
+        return res.send({
+          result: true,
+          serviceWorker: true,
+          cachedFiles,
+          workboxVersion
+        });
       }
     },
     post: {
