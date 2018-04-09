@@ -84,10 +84,14 @@ module.exports = {
         if (!fs.existsSync(`${appRoot}/${swDest}`)) {
           return res.send({ result: true, serviceWorker: false });
         }
+        let workboxVersion = "";
         const serviceWorker = fs.readFileSync(`${appRoot}/${swDest}`, "utf8");
         const cachedFiles = serviceWorker.split('"revision"').length - 1;
         const regexp = /releases\/(.*)\/workbox/;
-        const workboxVersion = serviceWorker.match(regexp)[1];
+        const match = serviceWorker.match(regexp);
+        if (match && match[1]) {
+          workboxVersion = match[1];
+        }
 
         return res.send({
           result: true,
