@@ -1,20 +1,13 @@
 # webdash workbox
 
-[plugin description]
+Webdash workbox helps you generate a service worker using [Workbox](https://workboxjs.org).
 
 ```bash
 npm install --save-dev webdash-workbox
 ```
 
-[screenshot here]
-
-
 ## Features
 
-* Feature 1
-* Feature 2
-* Feature 3
-
-## Configuration
-
-Any configuration details?
+* One-click install if workbox-cli is not installed
+* Wizard asks you questions with smart defaults
+* Shows stats about your existing service worker
